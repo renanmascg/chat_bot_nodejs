@@ -1,4 +1,5 @@
 import ICreateMessageDTO from '@modules/messages/dtos/ICreateMessageDTO';
+import IGetLastMessagesDTO from '@modules/messages/dtos/IGetLastMessagesDTO';
 import IMessagesRepository from '@modules/messages/repositories/IMessagesRepository';
 import { getRepository, Repository } from 'typeorm';
 import Message from '../entities/Message';
@@ -8,6 +9,19 @@ class MessagesRepository implements IMessagesRepository {
 
   constructor() {
     this.ormRepository = getRepository(Message);
+  }
+
+  async getLastMessages({
+    messagesNumber,
+  }: IGetLastMessagesDTO): Promise<Message[]> {
+    const messages = await this.ormRepository.find({
+      order: {
+        created_at: 'DESC',
+      },
+      take: messagesNumber,
+    });
+
+    return messages;
   }
 
   async create({ message, user_id }: ICreateMessageDTO): Promise<Message> {

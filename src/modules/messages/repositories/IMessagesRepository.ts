@@ -1,8 +1,9 @@
 import ICreateMessageDTO from '../dtos/ICreateMessageDTO';
+import IGetLastMessagesDTO from '../dtos/IGetLastMessagesDTO';
 import Message from '../infra/typeorm/entities/Message';
 
 interface IMessagesRepository {
-  // getLastMessages(date: Date): Promise<Message | undefined>;3qq
+  getLastMessages(data: IGetLastMessagesDTO): Promise<Message[]>;
   create(data: ICreateMessageDTO): Promise<Message>;
 }
 
