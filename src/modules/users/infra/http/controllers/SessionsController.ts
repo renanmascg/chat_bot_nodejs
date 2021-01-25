@@ -1,5 +1,3 @@
-// must have at most 5 methods
-// index, show, create, update, delete
 import { Request, Response } from 'express';
 import { container } from 'tsyringe';
 
@@ -20,7 +18,6 @@ class SessionsController {
       id: user.id,
       name: user.name,
       email: user.email,
-      avatar: user.avatar,
       created_at: user.created_at,
       updated_at: user.updated_at,
     };
