@@ -5,6 +5,8 @@ import IUsersRepository from '@modules/users/repositories/IUsersRepository';
 
 import IStockRepository from '@modules/stock_prices_bot/repositories/IStockRepository';
 import StockRepository from '@modules/stock_prices_bot/infra/remote_datasource/repositories/stockRepository';
+import IMessagesRepository from '@modules/messages/repositories/IMessagesRepository';
+import MessagesRepository from '@modules/messages/infra/typeorm/repositories/MessagesRepository';
 import CustomApiRequest from '../infra/api/customApiRequest';
 
 // Auxiliar Injection
@@ -23,4 +25,10 @@ container.registerSingleton<IUsersRepository>(
 container.registerSingleton<IStockRepository>(
   'StockRepository',
   StockRepository,
+);
+
+// Messages Injection
+container.registerSingleton<IMessagesRepository>(
+  'MessagesRepository',
+  MessagesRepository,
 );
