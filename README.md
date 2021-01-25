@@ -70,6 +70,8 @@ You must create a config file at the root level of your app, to configure the co
 
 Migrations are like a github for your database, it controls the version and state of your database.
 
+To start this project, please run every migration. The commando for this is described below.
+
 ## Migrations commands
 
 To use migrations commands, go to your package.json and add a script like this:
