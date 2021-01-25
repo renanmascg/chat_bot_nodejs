@@ -15,18 +15,18 @@ docker run --name <NAME TO FIND IN DOCKER> -e POSTGRES_PASSWORD=<YOUR AMAZING PA
 - To see all data inside your database, one option is to install DBEAVER in your computer ( there are more options, choose your favorite)
 - create a new connection with postgres on dbeaver
 
-![Postgres Image](./assets/dbeaver_01.png)
+![Postgres Image](./assets/readme_assets/dbeaver_01.png)
 
 - if you don't put an username, the default is [postgres]
 - and the password is the amazing password you put on docker command
 
-![Postgres Connection Image](./assets/dbeaver_02_connection.png)
+![Postgres Connection Image](./assets/readme_assets/dbeaver_02_connection.png)
 
 - After that, you must create a database:
   - Right click on your connection -> create -> database
   - put a database name, the enconding must be UTF-8 and keep others as default
 
-![Postgres Create Database](./assets/dbeaver_03_create_database.png)
+![Postgres Create Database](./assets/readme_assets/dbeaver_03_create_database.png)
 
 ## ORM Config
 You must create a config file at the root level of your app, to configure the connections with database.
