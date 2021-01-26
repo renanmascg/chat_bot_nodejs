@@ -1,3 +1,43 @@
+# ABOUT THE PROJECT
+
+- Socket API is used to make real time chat app and deal with messages and user requests
+
+- Every element of the express api is decoupled.
+  - Code was made using DDD Principles, to split responsabilities on layers
+  - Modules are decoupled components inside this app.
+    - Messages: Component that allow every request about messages ( creating messages and consulting)
+    - Users: User creation and session control
+    - Stock Prices Bot: Stock Api consulting
+
+- To run your code execute following steps:
+  - Create config files for your application
+  - Create and Run your postgres database
+  - Start project using yarn
+  - Using postman or insomnia, create the users that will be allowed to use the chat
+  - open chat app on browser and test the application
+
+** I could not integrate with rabbitMQ broker, this is the only point that I missed. **
+** The main reason is: I've never worked with rabbitMQ as a broker. When I tried to integrate, my application crashed. I'd rather send you a functional application without broker than something that has problems **
+
+# ORMCONFIG and .ENV files
+## ORMCONFIG
+
+This is going to connect node with your database, allowing your application to use all functionalities.
+
+Uncomment ormconfig.sample.json and put your password to run this application.
+
+## .ENV file
+this will config PORTs for socketIO and Express and the secret used for your token JWT.
+
+**READ THIS: to connect the frontend with socket I used PORT_SOCKET=3000. If you want to change this port, you have to change the connection url within app.js**
+
+**So, enter inside assets/frontend_assets/app.js and change 'http://localhost:(YOUR AMAZING PORT)'**
+```javascript
+const socket = io.connect('http://localhost:3000', {
+  forceNew: true,
+});
+```
+
 # DATABASE
 ## Docker config
 - First of all, you must create a postgres database at docker using the CLI command above:
@@ -29,7 +69,7 @@ docker run --name <NAME TO FIND IN DOCKER> -e POSTGRES_PASSWORD=<YOUR AMAZING PA
 ![Postgres Create Database](./assets/readme_assets/dbeaver_03_create_database.png)
 
 ## ORM Config
-You must create a config file at the root level of your app, to configure the connections with database.
+You must create a config file at the root level of your app, to configure the connections with database (like ormconfig.sample.json)
 
 ```javascript
 {
@@ -65,12 +105,15 @@ You must create a config file at the root level of your app, to configure the co
     - this is used to locate and run migrations.
 
 
-
 # Migrations
 
 Migrations are like a github for your database, it controls the version and state of your database.
 
-To start this project, please run every migration. The commando for this is described below.
+To start this project, please run every migration using.
+
+**If your database is not up, this won't work. Please ensure your database is working on correct port.**
+
+``` yarn typeorm migration:run ```
 
 ## Migrations commands
 
@@ -82,8 +125,11 @@ To use migrations commands, go to your package.json and add a script like this:
   }
 ```
 
-after that, use the following commands:
+**THIS SCRIPTS ARE ALREADY CONFIGURED, THIS IS ONLY FOR UNDERSTANDING PURPOISE**
 
+If something went wrong, revert migrations and run again.
+
+A little list of usefull commands for migrations
 <strong>Show all migrations state</strong>
 
   - ``` yarn typeorm migration:show ```
@@ -100,86 +146,42 @@ after that, use the following commands:
 
   - ``` yarn typeorm migration:revert ```
 
+# START PROJECT
 
-# SQL Definitions
+To start project, please download all packages using yarn ( digit "yarn" at root of this project)
 
-## Foreign Key
+After that, you should config the postgres database on your machine ( above has a short explanation how to make it with docker, but feel free to config as you like).
 
-- Definition:
-  - A FOREIGN KEY is a field (or collection of fields) in one table that refers to the PRIMARY KEY in another table.
-  - The table containing the foreign key is called the child table,
-  - The table containing the candidate key is called the referenced or parent table.
+Config ormconfig.json and .env files ( below has an explanation about both)
 
-- Relations:
-  - One to One
-  - One to Many
-  - Many to Many
+Start project using this command:
+``` yarn dev:server ```
 
-# Dealing with Errors
+## Creating users
 
-To deal with errors, we should use a global error handling
-Every error that occurs inside this applications, is going to pass through a middleware and inside this middleware, we treat them.
-
-Each global error handling used as middleware must have 4 args:
-  - Error, Request, Response and Next
-
-Tip 01: Create a internal class Error ( like AppError ) to difference between, what you are expection and what is unexpected
-
-The following example will make it more clear:
-
-Tip 02: As our routes are assyncronous, express lib do not handle it. so we need to import another lib to make this work
-  - ``` yarn add express-async-errors ```
-  - you must import this lib right after importing express, if don't this will not work !!
-
-```javascript
-app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
-  if (err instanceof AppError) {
-    return response.status(err.statusCode).json({
-      status: 'error',
-      message: err.message,
-    });
-  }
-
-  console.error(err);
-
-  return response.status(500).json({
-    status: 'error',
-    message: 'Internal Server Error',
-  });
-});
+- Open insomnia or postman, and make the following request:
+```
+URL: http://localhost:(PORT)/users/
+METHOD: POST
+Body: {
+	"name": "RENAN",
+	"email": "renanmascg@gmail.com",
+	"password": "123456"
+}
 ```
 
-# Related Paths
+- Now, this user has access to chat app.
 
-To use related paths to import packages (@modules/ @shared), you should follow the next steps:
-  - Add to your tsconfig.json these configs
-  ```json
-  "baseUrl": "./src",
-    "paths": {
-      "@modules/*": ["modules/*"],
-      "@config/*": ["config/*"],
-      "@shared/*": ["shared/*"],
-    },
-  ```
-- Add to your package.json the following package:
-  ```yarn add tsconfig-paths -D```
+## GETTING CHAT APP FRONTEND
 
-- go to your package.json at scripts and add in front of ts-node-dev `-r tsconfig-paths/register`
-- Example of your scripts inside package.json:
-```json
-  "scripts": {
-    "build": "tsc",
-    "dev:server": "ts-node-dev -r tsconfig-paths/register --exit-child --poll --transpile-only --ignore-watch node_modules src/shared/infra/http/server.ts",
-    "start": "ts-node  src/shared/infra/http/server.ts",
-    "typeorm": "ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js"
-  },
-```
+This files are served as static files.
 
-## BENEFITS
+Open your favorite browser (use chrome to avoid unconventional errors) on url:
+  - http://localhost:(PORT)/files/index.html
 
-- these configs tell to your typescript how to find the paths to module based on ./src folder
-- make it a lot more easy to import packages
-- does not matter which file you are located, if you want to import a folder from modules, you may import using:
-```javascript
-import sessionsRouter from '@modules/users/infra/http/routes/sessions.routes';
-```
+Then you can make a login with any user created using api.
+
+Some bussiness rules about the chat:
+  - there are no session keeper, so when you refresh the page, will be necessary to make login again
+  - When you entered the chat, this will load only the last 50 messages (ordered by timestamp)
+  - during the use, any additional message is going to be added to the message list.
