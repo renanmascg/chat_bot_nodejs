@@ -109,12 +109,12 @@ $(document).ready(function () {
       messages.forEach(msg => {
         const time = new Date(msg.created_at);
 
-        const { message, user_id: client } = msg;
+        const { message, user: client } = msg;
 
         const elementClass = userInfo.user.id === client ? 'self' : 'field';
 
         $('.chat').append(
-          `<li class=${elementClass}><div class="msg"><span>${client}:</span><p>${message}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
+          `<li class=${elementClass}><div class="msg"><span>${client.name}:</span><p>${message}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
         );
       });
 

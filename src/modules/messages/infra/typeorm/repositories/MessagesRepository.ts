@@ -1,6 +1,7 @@
 import ICreateMessageDTO from '@modules/messages/dtos/ICreateMessageDTO';
 import IGetLastMessagesDTO from '@modules/messages/dtos/IGetLastMessagesDTO';
 import IMessagesRepository from '@modules/messages/repositories/IMessagesRepository';
+import User from '@modules/users/infra/typeorm/entities/User';
 import { getRepository, Repository } from 'typeorm';
 import Message from '../entities/Message';
 
@@ -19,9 +20,17 @@ class MessagesRepository implements IMessagesRepository {
         created_at: 'DESC',
       },
       take: messagesNumber,
+      relations: ['user'],
     });
 
-    return messages;
+    const messagesWithoutUsersSecretInfo = messages.map(message => {
+      delete message.user.password;
+      delete message.user.email;
+
+      return message;
+    });
+
+    return messagesWithoutUsersSecretInfo;
   }
 
   async create({ message, user_id }: ICreateMessageDTO): Promise<Message> {
