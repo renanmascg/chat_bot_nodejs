@@ -43,21 +43,31 @@ $(document).ready(function () {
   });
 
   $('#textarea').keypress(function (e) {
+    // press enter
     if (e.which == 13) {
       const text = $('#textarea').val();
       $('#textarea').val('');
+
       const time = new Date();
+
       $('.chat').append(
-        `<li class="self"><div class="msg"><span>${$(
-          '#nickname',
-        ).val()}:</span><p>${text}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
+        `<li class="self"><div class="msg"><span>${
+          userInfo.user.name
+        }:</span><p>${text}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
       );
 
-      socket.emit('send', text);
+      if (text.trim().startsWith('/stock=')) {
+        const [, stock] = text.trim().split('/stock=')
+        socket.emit('stock_api', stock);
+      } else {
+        socket.emit('send', text);
+      }
       // automatically scroll down
       document.getElementById('bottom').scrollIntoView();
     }
   });
+
+  // listeners from open socket - from backend
 
   socket.on('update', function (msg) {
     if (ready) {
@@ -70,6 +80,35 @@ $(document).ready(function () {
       const time = new Date();
       $('.chat').append(
         `<li class="field"><div class="msg"><span>${client}:</span><p>${msg}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
+      );
+    }
+  });
+
+  socket.on('initial_messages', function (messages) {
+    if (ready) {
+      messages.forEach(msg => {
+        const time = new Date(msg.created_at);
+
+        const { message, user_id: client } = msg;
+
+        const elementClass = userInfo.user.id === client ? 'self' : 'field';
+
+        $('.chat').append(
+          `<li class=${elementClass}><div class="msg"><span>${client}:</span><p>${message}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
+        );
+      });
+
+      document.getElementById('bottom').scrollIntoView();
+    }
+  });
+
+  socket.on('stock_bot', function (stock_info) {
+    if (ready) {
+      const time = new Date();
+      const client = 'STOCK_BOT';
+
+      $('.chat').append(
+        `<li class="field"><div class="msg"><span>${client}:</span><p>${stock_info}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
       );
     }
   });

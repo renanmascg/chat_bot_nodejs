@@ -168,6 +168,7 @@ input.btn:hover {
     padding: 0.5rem;
     overflow: hidden;
     display: flex;
+    margin-bottom: 15px;
 }
 
 .other .msg {

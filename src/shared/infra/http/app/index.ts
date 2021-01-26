@@ -1,12 +1,11 @@
+import auth from '@config/auth';
+import globalErrorHandling from '@shared/errors/GlobalErrorHandling';
+import SocketIOFunctions from '@shared/infra/socketio';
+import cors from 'cors';
 import express from 'express';
 import 'express-async-errors';
-
 import { createServer, Server } from 'http';
 import socketIo from 'socket.io';
-
-import globalErrorHandling from '@shared/errors/GlobalErrorHandling';
-import auth from '@config/auth';
-import cors from 'cors';
 import routes from '../routes';
 
 class App {
@@ -15,6 +14,8 @@ class App {
   public server: Server;
 
   private io: socketIo.Server;
+
+  private socketIOFunctions: SocketIOFunctions;
 
   constructor() {
     this.initializeExpress();
@@ -37,23 +38,24 @@ class App {
   private initializeSockets(): void {
     this.server = createServer(this.app);
     this.io = new socketIo.Server(this.server);
+    this.socketIOFunctions = new SocketIOFunctions(this.io);
   }
 
   private listen(): void {
     this.io.on('connection', (client: any) => {
-      client.on('join', (name: string) => {
-        console.log(`Joined: ${name}`);
-        client.emit('update', 'You have connected to the server.');
-        client.broadcast.emit('update', `${name} has joined the server.`);
-      });
+      client.on('join', async (name: string) =>
+        this.socketIOFunctions.onJoin(name, client),
+      );
 
-      client.on('send', (msg: string) => {
-        console.log(`Message: ${msg}`);
-        client.broadcast.emit('chat', msg);
-      });
+      client.on('send', async (msg: string, user_id: string) =>
+        this.socketIOFunctions.onSend(client, msg, user_id),
+      );
+
+      client.on('stock_api', (stockName: string) =>
+        this.socketIOFunctions.onStockCall(client, stockName),
+      );
 
       client.on('disconnect', () => {
-        console.log('Disconnect');
         this.io.emit('update', `Client has left the server.`);
       });
     });
