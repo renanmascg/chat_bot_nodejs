@@ -1,33 +1,55 @@
-import MessagesLocalConn from '@modules/messages/infra/localConn/messagesLocalConn';
-import StockPriceBot from '@modules/stock_prices_bot/infra/localConn/stock_price_bot';
-import socketIo, { Socket } from 'socket.io';
+import axios, { AxiosInstance } from 'axios';
+import { Socket } from 'socket.io';
+import { IJoinDTO } from './dtos/IJoinDTO';
+import { ISendDTO } from './dtos/ISendDTO';
 
 class SocketIOFunctions {
-  private io: socketIo.Server;
+  private axios: AxiosInstance;
 
-  constructor(io: socketIo.Server) {
-    this.io = io;
+  constructor() {
+    this.axios = axios.create({
+      baseURL: `http://localhost:${process.env.PORT_API}`,
+    });
   }
 
-  public async onJoin(name: string, client: Socket): Promise<void> {
-    const localMessages = new MessagesLocalConn();
-    const messages = await localMessages.index();
+  public async onJoin({ token, name, client }: IJoinDTO): Promise<void> {
+    try {
+      const messages = await this.axios.get('/messages', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    client.emit('update', 'You have connected to the server.');
-    client.emit('initial_messages', messages);
-    client.broadcast.emit('update', `${name} has joined the server.`);
+      client.emit('update', 'You have connected to the server.');
+      client.emit('initial_messages', messages.data.messages);
+      client.broadcast.emit('update', `${name} has joined the server.`);
+    } catch (err) {
+      client.emit('update', 'You have connected to the server.');
+      client.emit('initial_messages', []);
+      client.broadcast.emit('update', `${name} has joined the server.`);
+    }
   }
 
-  public async onSend(
-    client: Socket,
-    message: string,
-    user_id: string,
-    userName: string,
-  ): Promise<void> {
-    const localMessages = new MessagesLocalConn();
-    const messageEntity = await localMessages.create(message, user_id);
+  public async onSend({ client, text, name, token }: ISendDTO): Promise<void> {
+    try {
+      const messageResponse = await this.axios.post(
+        '/messages',
+        {
+          message: text,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
-    client.broadcast.emit('chat', userName, messageEntity.message);
+      const { message } = messageResponse.data;
+
+      client.broadcast.emit('chat', name, message.message);
+    } catch (err) {
+      client.emit('update', 'MESSAGE COULD NOT BE SENT. TRY AGAIN LATER');
+    }
   }
 
   public async onStockCall(
@@ -35,16 +57,24 @@ class SocketIOFunctions {
     userName: string,
     stockName: string,
   ): Promise<void> {
-    const stockPriceBot = new StockPriceBot();
-    const stockPriceMessage = await stockPriceBot.show(stockName);
-
     client.broadcast.emit('chat', userName, `/stock=${stockName}`);
-    client.emit('stock_bot', stockPriceMessage);
-    client.broadcast.emit('stock_bot', stockPriceMessage);
-  }
 
-  public onDisconnect(): void {
-    this.io.emit('update', `Client has left the server.`);
+    try {
+      const stockPriceMessage = await this.axios.post('/stock-prices', {
+        stockName,
+      });
+
+      const { stockDataText } = stockPriceMessage.data;
+
+      client.emit('stock_bot', stockDataText);
+      client.broadcast.emit('stock_bot', stockDataText);
+    } catch (err) {
+      client.emit('stock_bot', 'Maintenance Server - try again later ');
+      client.broadcast.emit(
+        'stock_bot',
+        'Maintenance Server - try again later ',
+      );
+    }
   }
 }
 

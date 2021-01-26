@@ -1,5 +1,8 @@
 $(document).ready(function () {
-  const socket = io.connect('http://localhost:3333');
+  const socket = io.connect('http://localhost:3000', {
+    forceNew: true,
+  });
+
   let ready = false;
 
   let userInfo;
@@ -34,7 +37,11 @@ $(document).ready(function () {
         $('#time').html(`First login: ${time.getHours()}:${time.getMinutes()}`);
 
         ready = true;
-        socket.emit('join', userInfo.user.name);
+
+        socket.emit('join', {
+          name: userInfo.user.name,
+          token: userInfo.token,
+        });
       })
       .catch(err => {
         console.log(err);
@@ -58,9 +65,18 @@ $(document).ready(function () {
 
       if (text.trim().startsWith('/stock=')) {
         const [, stock] = text.trim().split('/stock=');
-        socket.emit('stock_api', userInfo.user.name, stock);
+
+        socket.emit('stock_api', {
+          stock,
+          name: userInfo.user.name,
+          token: userInfo.token,
+        });
       } else {
-        socket.emit('send', text, userInfo.user.id, userInfo.user.name);
+        socket.emit('send', {
+          text,
+          name: userInfo.user.name,
+          token: userInfo.token,
+        });
       }
 
       // automatically scroll down

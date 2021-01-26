@@ -7,8 +7,6 @@ class SessionsController {
   public async create(request: Request, response: Response): Promise<Response> {
     const { email, password } = request.body;
 
-    console.log(email, password);
-
     const authenticateUserService = container.resolve(AuthenticateUserService);
 
     const { user, token } = await authenticateUserService.execute({

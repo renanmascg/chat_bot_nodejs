@@ -1,11 +1,17 @@
 import auth from '@config/auth';
 import globalErrorHandling from '@shared/errors/GlobalErrorHandling';
 import SocketIOFunctions from '@shared/infra/socketio';
+
+import { IJoinRequest } from '@shared/infra/socketio/dtos/IJoinDTO';
+import { ISendRequest } from '@shared/infra/socketio/dtos/ISendDTO';
+import { createServer, Server } from 'http';
+
 import cors from 'cors';
+
 import express from 'express';
 import 'express-async-errors';
-import { createServer, Server } from 'http';
 import socketIo from 'socket.io';
+
 import routes from '../routes';
 
 class App {
@@ -13,7 +19,7 @@ class App {
 
   public server: Server;
 
-  private io: socketIo.Server;
+  public io: socketIo.Server;
 
   private socketIOFunctions: SocketIOFunctions;
 
@@ -38,19 +44,26 @@ class App {
   private initializeSockets(): void {
     this.server = createServer(this.app);
     this.io = new socketIo.Server(this.server);
-    this.socketIOFunctions = new SocketIOFunctions(this.io);
+    this.socketIOFunctions = new SocketIOFunctions();
   }
 
-  private listen(): void {
+  public listen(): void {
     this.io.on('connection', (client: any) => {
-      client.on('join', async (name: string) =>
-        this.socketIOFunctions.onJoin(name, client),
+      client.on('join', async ({ name, token }: IJoinRequest) =>
+        this.socketIOFunctions.onJoin({
+          name,
+          token,
+          client,
+        }),
       );
 
-      client.on(
-        'send',
-        async (msg: string, user_id: string, userName: string) =>
-          this.socketIOFunctions.onSend(client, msg, user_id, userName),
+      client.on('send', async ({ name, text, token }: ISendRequest) =>
+        this.socketIOFunctions.onSend({
+          client,
+          name,
+          text,
+          token,
+        }),
       );
 
       client.on('stock_api', async (userName: string, stockName: string) =>
