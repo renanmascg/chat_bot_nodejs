@@ -1,17 +1,14 @@
 import auth from '@config/auth';
 import globalErrorHandling from '@shared/errors/GlobalErrorHandling';
 import SocketIOFunctions from '@shared/infra/socketio';
-
 import { IJoinRequest } from '@shared/infra/socketio/dtos/IJoinDTO';
 import { ISendRequest } from '@shared/infra/socketio/dtos/ISendDTO';
-import { createServer, Server } from 'http';
-
+import { IStockApiRequest } from '@shared/infra/socketio/dtos/IStockApiDTO';
 import cors from 'cors';
-
 import express from 'express';
 import 'express-async-errors';
+import { createServer, Server } from 'http';
 import socketIo from 'socket.io';
-
 import routes from '../routes';
 
 class App {
@@ -66,8 +63,15 @@ class App {
         }),
       );
 
-      client.on('stock_api', async (userName: string, stockName: string) =>
-        this.socketIOFunctions.onStockCall(client, userName, stockName),
+      client.on(
+        'stock_api',
+        async ({ stockName, name, token }: IStockApiRequest) =>
+          this.socketIOFunctions.onStockCall({
+            client,
+            stockName,
+            token,
+            name,
+          }),
       );
 
       client.on('disconnect', () => {

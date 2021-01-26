@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
-import { Socket } from 'socket.io';
 import { IJoinDTO } from './dtos/IJoinDTO';
 import { ISendDTO } from './dtos/ISendDTO';
+import { IStockApiDTO } from './dtos/IStockApiDTO';
 
 class SocketIOFunctions {
   private axios: AxiosInstance;
@@ -52,17 +52,26 @@ class SocketIOFunctions {
     }
   }
 
-  public async onStockCall(
-    client: Socket,
-    userName: string,
-    stockName: string,
-  ): Promise<void> {
-    client.broadcast.emit('chat', userName, `/stock=${stockName}`);
+  public async onStockCall({
+    client,
+    stockName,
+    name,
+    token,
+  }: IStockApiDTO): Promise<void> {
+    client.broadcast.emit('chat', name, `/stock=${stockName}`);
 
     try {
-      const stockPriceMessage = await this.axios.post('/stock-prices', {
-        stockName,
-      });
+      const stockPriceMessage = await this.axios.post(
+        '/stock-prices',
+        {
+          stockName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       const { stockDataText } = stockPriceMessage.data;
 

@@ -21,7 +21,7 @@ class GetStockFromApi {
 
       return stockValueText;
     } catch (err) {
-      return 'Stock Api Error - Please, try again later';
+      return `Stock Api Could Not Find Stock: ${stockName} `;
     }
   }
 }

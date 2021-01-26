@@ -64,10 +64,10 @@ $(document).ready(function () {
       );
 
       if (text.trim().startsWith('/stock=')) {
-        const [, stock] = text.trim().split('/stock=');
+        const [, stockName] = text.trim().split('/stock=');
 
         socket.emit('stock_api', {
-          stock,
+          stockName,
           name: userInfo.user.name,
           token: userInfo.token,
         });
