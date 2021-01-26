@@ -1,9 +1,10 @@
 # ABOUT THE PROJECT
 
 - Socket API is used to make real time chat app and deal with messages and user requests
+  - everything that user needs ( save message, consulting bot api, get messages) are made 
 
 - Every element of the express api is decoupled.
-  - Code was made using DDD Principles, to split responsabilities on layers
+  - Code was made using basic DDD and SOLID principles, to split responsabilities on layers
   - Modules are decoupled components inside this app.
     - Messages: Component that allow every request about messages ( creating messages and consulting)
     - Users: User creation and session control

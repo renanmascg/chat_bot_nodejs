@@ -4,10 +4,14 @@ import SocketIOFunctions from '@shared/infra/socketio';
 import { IJoinRequest } from '@shared/infra/socketio/dtos/IJoinDTO';
 import { ISendRequest } from '@shared/infra/socketio/dtos/ISendDTO';
 import { IStockApiRequest } from '@shared/infra/socketio/dtos/IStockApiDTO';
+
 import cors from 'cors';
 import express from 'express';
 import 'express-async-errors';
+
 import { createServer, Server } from 'http';
+import { errors } from 'celebrate';
+
 import socketIo from 'socket.io';
 import routes from '../routes';
 
@@ -34,6 +38,7 @@ class App {
     this.app.use(express.json());
     this.app.use('/files', express.static(auth.directory));
     this.app.use(routes);
+    this.app.use(errors());
 
     this.app.use(globalErrorHandling);
   }
