@@ -57,11 +57,12 @@ $(document).ready(function () {
       );
 
       if (text.trim().startsWith('/stock=')) {
-        const [, stock] = text.trim().split('/stock=')
-        socket.emit('stock_api', stock);
+        const [, stock] = text.trim().split('/stock=');
+        socket.emit('stock_api', userInfo.user.name, stock);
       } else {
-        socket.emit('send', text);
+        socket.emit('send', text, userInfo.user.id, userInfo.user.name);
       }
+
       // automatically scroll down
       document.getElementById('bottom').scrollIntoView();
     }
@@ -72,6 +73,7 @@ $(document).ready(function () {
   socket.on('update', function (msg) {
     if (ready) {
       $('.chat').append(`<li class="info">${msg}</li>`);
+      document.getElementById('bottom').scrollIntoView();
     }
   });
 
@@ -81,6 +83,8 @@ $(document).ready(function () {
       $('.chat').append(
         `<li class="field"><div class="msg"><span>${client}:</span><p>${msg}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
       );
+
+      document.getElementById('bottom').scrollIntoView();
     }
   });
 
@@ -102,14 +106,16 @@ $(document).ready(function () {
     }
   });
 
-  socket.on('stock_bot', function (stock_info) {
+  socket.on('stock_bot', function (stockPriceMessage) {
     if (ready) {
       const time = new Date();
       const client = 'STOCK_BOT';
 
       $('.chat').append(
-        `<li class="field"><div class="msg"><span>${client}:</span><p>${stock_info}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
+        `<li class="field"><div class="msg"><span>${client}:</span><p>${stockPriceMessage}</p><time>${time.getHours()}:${time.getMinutes()}</time></div></li>`,
       );
+
+      document.getElementById('bottom').scrollIntoView();
     }
   });
 });

@@ -22,17 +22,24 @@ class SocketIOFunctions {
     client: Socket,
     message: string,
     user_id: string,
+    userName: string,
   ): Promise<void> {
     const localMessages = new MessagesLocalConn();
     const messageEntity = await localMessages.create(message, user_id);
 
-    client.broadcast.emit('chat', messageEntity);
+    client.broadcast.emit('chat', userName, messageEntity.message);
   }
 
-  public async onStockCall(client: Socket, stockName: string): Promise<void> {
+  public async onStockCall(
+    client: Socket,
+    userName: string,
+    stockName: string,
+  ): Promise<void> {
     const stockPriceBot = new StockPriceBot();
     const stockPriceMessage = await stockPriceBot.show(stockName);
 
+    client.broadcast.emit('chat', userName, `/stock=${stockName}`);
+    client.emit('stock_bot', stockPriceMessage);
     client.broadcast.emit('stock_bot', stockPriceMessage);
   }
 

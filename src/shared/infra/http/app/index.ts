@@ -47,12 +47,14 @@ class App {
         this.socketIOFunctions.onJoin(name, client),
       );
 
-      client.on('send', async (msg: string, user_id: string) =>
-        this.socketIOFunctions.onSend(client, msg, user_id),
+      client.on(
+        'send',
+        async (msg: string, user_id: string, userName: string) =>
+          this.socketIOFunctions.onSend(client, msg, user_id, userName),
       );
 
-      client.on('stock_api', (stockName: string) =>
-        this.socketIOFunctions.onStockCall(client, stockName),
+      client.on('stock_api', async (userName: string, stockName: string) =>
+        this.socketIOFunctions.onStockCall(client, userName, stockName),
       );
 
       client.on('disconnect', () => {
