@@ -10,13 +10,19 @@ class GetStockFromApi {
   ) {}
 
   public async execute({ stockName }: IStockDTO): Promise<string> {
-    const stockData = await this.stockRepository.findByStockName({ stockName });
+    try {
+      const stockData = await this.stockRepository.findByStockName({
+        stockName,
+      });
 
-    const stockValueText = `${
-      stockData.Symbol
-    } quote is $${stockData.Close.toFixed(2)} per share.`;
+      const stockValueText = `${
+        stockData.Symbol
+      } quote is $${stockData.Close.toFixed(2)} per share.`;
 
-    return stockValueText;
+      return stockValueText;
+    } catch (err) {
+      return 'Stock Api Error - Please, try again later';
+    }
   }
 }
 
