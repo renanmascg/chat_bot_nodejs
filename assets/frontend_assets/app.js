@@ -2,17 +2,44 @@ $(document).ready(function () {
   const socket = io.connect('http://localhost:3333');
   let ready = false;
 
-  $('#submit').submit(function (e) {
-    e.preventDefault();
-    $('#nick').fadeOut();
-    $('#chat').fadeIn();
-    const name = $('#nickname').val();
-    const time = new Date();
-    $('#name').html(name);
-    $('#time').html(`First login: ${time.getHours()}:${time.getMinutes()}`);
+  let userInfo;
 
-    ready = true;
-    socket.emit('join', name);
+  $('#form').submit(function (e) {
+    e.preventDefault();
+
+    const password = e.currentTarget.password.value;
+    const email = e.currentTarget.email.value;
+
+    const data = {
+      email,
+      password,
+    };
+
+    $.ajax({
+      url: '/sessions',
+      method: 'POST',
+      data: JSON.stringify(data),
+      contentType: 'application/json',
+      // dataType: "json"
+    })
+      .then(userData => {
+        userInfo = userData;
+
+        $('#login').fadeOut();
+        $('#chat').fadeIn();
+
+        const time = new Date();
+
+        $('#name').html(userInfo.user.name);
+        $('#time').html(`First login: ${time.getHours()}:${time.getMinutes()}`);
+
+        ready = true;
+        socket.emit('join', userInfo.user.name);
+      })
+      .catch(err => {
+        console.log(err);
+        $('#error_message').removeAttr('hidden');
+      });
   });
 
   $('#textarea').keypress(function (e) {

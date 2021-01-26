@@ -8,7 +8,7 @@ html, body {
     height:100%;
 }
 ::selection{
-  background: #F36C44;
+  background: #00ff99;
   color: #FFF;
 }
 input { outline: none; }
@@ -18,35 +18,107 @@ a{
 }
 
 
-.nickname_container {
-   background: #F36C44;
+.login_container {
+   background: #04142C;
    width: 100%;
    height:100%;
    margin: 0;
    padding: 0;
    top: 0;
    left: 0;
-   z-index:2000;
    text-align: center;
    display: flex;
    flex-direction: column;
    justify-content: center;
-
+   align-items: center;
 }
 
-.nickname_container span {
+.login_container span {
 	color:#FFF;
 }
 
-.nickname_container input {
-	text-align:center;
-	color:#FFF;
-	font-size: 35px;
-	height:50px;
-	background: #F36C44;
-	border:none;
-	border-bottom:1px solid #CB5B3B;
-	margin:15px 10%;
+/* form */
+
+form {
+  width: 450px;
+  height: 600px;
+  padding: 30px;
+  background: rgba(0,0,0,0.4);
+  border: 2px solid #00ff99;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+form h1 {
+  color: #fff;
+  font-weight: 700;
+  font-size: 40px;
+}
+
+form img {
+  width: 150px;
+  margin-bottom: 20px;
+}
+
+form .input-form {
+  width: 350px;
+  background: white;
+  display: grid;
+  grid-template-columns: 15% 85%;
+  border-radius: 10px;
+  height: 50px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+form .input-form i {
+  display: flex;
+  font-size: 20px;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-hot-pink);
+}
+
+form .input-form input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 500;
+  color: var(--color-input-text);
+  padding-right: 20px;
+}
+
+form div.error {
+  margin-top: 10px;
+  color: #FF2748;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* input btn */
+
+input.btn {
+  margin-top: 10px;
+  outline: none;
+  width: 350px;
+  border-radius: 10px;
+  height: 56px;
+  border: none;
+  background: #00ff99;
+  color: #333;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+input.btn:hover {
+  filter: brightness(90%);
 }
 
 /* Menu */
