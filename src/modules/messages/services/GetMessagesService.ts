@@ -14,6 +14,8 @@ class GetMessagesService {
       messagesNumber: 50,
     });
 
+    messages.reverse();
+
     return messages;
   }
 }
